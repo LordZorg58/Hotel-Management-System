@@ -4,6 +4,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,7 +22,7 @@ import java.util.Random;
  * @author DELL
  */
 
-public class Rooms extends Booking{
+public class Rooms extends Booking implements Serializable{
      Rooms room;
      guest guest;
       private int roomNumber;
@@ -265,20 +266,21 @@ public class Rooms extends Booking{
      
      public static void saveRoomstofile(String filename )
      {
-         try{
-             ObjectOutputStream o=new ObjectOutputStream(new FileOutputStream(filename)) ;
+         try(ObjectOutputStream o=new ObjectOutputStream(new FileOutputStream(filename))) {
              o.writeObject(roomsByNumber);
-             
+             o.writeObject(listRooms);
+             o.writeObject(roomNumbers);
          }catch(IOException e){
              System.out.println(e);
          }
      }
      public static void readRoomsfromfile(String filename )
      {
-         try{
-             ObjectInputStream o=new ObjectInputStream(new FileInputStream(filename)) ;
+         try(ObjectInputStream o=new ObjectInputStream(new FileInputStream(filename))){ 
              roomsByNumber=(Map<Integer,Rooms>)o.readObject();
-             System.out.println("");
+                 listRooms = (List<Rooms>) o.readObject();
+            roomNumbers = (List<Integer>) o.readObject();            
+            System.out.println("");
             }  catch(IOException  |ClassNotFoundException e){
              System.out.println(e);
     }
