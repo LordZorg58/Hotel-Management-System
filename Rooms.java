@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Scanner;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -115,13 +116,17 @@ public class Rooms extends Booking implements Serializable{
     public void setRevenue(double revenue) {
         this.revenue = revenue;
     }
-
- 
-
-    public static Map<Integer, Rooms> getRoomsByNumber() {
+public static Map<Integer, Rooms> getRoomsByNumber() {
         return roomsByNumber;
     }
-     
+    
+    
+ 
+
+    
+    
+    
+    ///////////////////////////  ADD , REMOVE , EDIT FUNCTIONS /////////////////////////////////
    
         public void addReservation(Booking reservation) {
       room.addBooking(reservation.getCheckInDate(),reservation.getCheckOutDate(),reservation.getNumberOfGuests());
@@ -136,12 +141,7 @@ public class Rooms extends Booking implements Serializable{
         System.out.println("Room " + roomNumber + " added successfully.");
     }
          
-         
-         
-         
-         
-
-      public void editRoom(int roomNumber, String newCategory, boolean newAvailability) {
+          public void editRoom(int roomNumber, String newCategory, boolean newAvailability) {
          
       //hena 2na badwer 3la 2l room
         if(roomsByNumber.containsKey(roomNumber)){
@@ -156,7 +156,7 @@ public class Rooms extends Booking implements Serializable{
        
         }
      
-      public void removeRoom(int roomNumber) {
+         public void removeRoom(int roomNumber) {
       //hena 2na badwer 3la 2l room
           if (roomsByNumber.containsKey(roomNumber)) {
             roomsByNumber.remove(roomNumber);
@@ -169,10 +169,13 @@ public class Rooms extends Booking implements Serializable{
          
      
       }
- //Helper method to find a room by room number
-   private static Rooms findRoom(int roomNumber) {
-    return roomsByNumber.get(roomNumber);
-   }
+         
+         
+
+     
+      
+      ///////////// Function to find user room ///////////////////////
+   
   private static Rooms findUserRoom(int roomNumber, guest guest) {
         for (Map.Entry<Integer, Rooms> entry : roomsByNumber.entrySet()) {
            
@@ -188,16 +191,77 @@ public class Rooms extends Booking implements Serializable{
         return null;
     }
 
-     public List<Rooms> listRooms() {
+  
+  
+  public List<Rooms> listRooms() {
       return new ArrayList<>(listRooms);
   }
      private List<Rooms> createRoomsList() {
         List<Rooms> roomsList = new ArrayList<>();
         for (Map.Entry<Integer, Rooms> entry : roomsByNumber.entrySet()) {
-            roomsList.add(new Rooms(entry.getKey(), entry.getValue()));
+            roomsList.add(new Rooms(entry.getKey(), entry.getValue()));                 // check if this functions important 
         }
         return roomsList;
     }
+  
+  
+ 
+  
+  
+  
+  
+     
+      ///////////////////////////  search in the list by number and category /////////////////////////////
+  
+     public Rooms searchByNum(int f){
+         for(Rooms room:listRooms )
+         if(room.getRoomNumber()==f) {
+             return room;
+             
+         }
+             return null;
+         
+         
+     }    
+       public List<Rooms> searchRoomsByCategory(String category) {
+    List<Rooms> matchingRooms = new ArrayList<>();
+    for (Rooms room : listRooms) {
+        if (room.getCategory().equalsIgnoreCase(category)) {
+            matchingRooms.add(room);
+        }
+    }
+    return matchingRooms;
+
+}  
+       
+       
+       
+       //////////search in the hash map////////////////
+     
+    public Rooms searchRoomByNumberhashmap(int roomNumber) {
+    return roomsByNumber.get(roomNumber);
+} 
+  
+     
+    public List<Rooms> searchRoomsinhashmap(String category) {
+    List<Rooms> matchingRooms = new ArrayList<>();
+    for (Rooms room : roomsByNumber.values()) {
+        if (room.getCategory().equalsIgnoreCase(category)) {
+            matchingRooms.add(room);
+        }
+    }
+    return matchingRooms;
+} 
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
      
       public Rooms getRoomDetails(int roomNumber) {
           if(roomsByNumber.containsKey(roomNumber)){
@@ -262,9 +326,9 @@ public class Rooms extends Booking implements Serializable{
      return (int) reservation.getCheckInDate().until(reservation.getCheckOutDate()).getDays();
 }
        
+     /////////////// Binary File //////////
      
-     
-     public static void saveRoomstofile(String filename )
+     public static void saveRoomsBin(String filename )
      {
          try(ObjectOutputStream o=new ObjectOutputStream(new FileOutputStream(filename))) {
              o.writeObject(roomsByNumber);
@@ -274,7 +338,8 @@ public class Rooms extends Booking implements Serializable{
              System.out.println(e);
          }
      }
-     public static void readRoomsfromfile(String filename )
+     
+     public static void readRoomsfromBin(String filename )
      {
          try(ObjectInputStream o=new ObjectInputStream(new FileInputStream(filename))){ 
              roomsByNumber=(Map<Integer,Rooms>)o.readObject();
@@ -285,6 +350,10 @@ public class Rooms extends Booking implements Serializable{
              System.out.println(e);
     }
      }
+     
+     
+     
+     ///////////////////find most revenue room/////////////////////
      
      public  Rooms findmostrevenue(){
          if(listRooms.isEmpty()){
