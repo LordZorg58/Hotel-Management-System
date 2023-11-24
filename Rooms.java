@@ -23,7 +23,7 @@ import java.util.Scanner;
  * @author DELL
  */
 
-public class Rooms extends Booking implements Serializable{
+public class Rooms extends Booking implements Serializable{   //The Serializable interface is a marker interface. It has no methods
      Rooms room;
      guest guest;
       private int roomNumber;
@@ -128,16 +128,17 @@ public static Map<Integer, Rooms> getRoomsByNumber() {
     
     ///////////////////////////  ADD , REMOVE , EDIT FUNCTIONS /////////////////////////////////
    
-        public void addReservation(Booking reservation) {
-      room.addBooking(reservation.getCheckInDate(),reservation.getCheckOutDate(),reservation.getNumberOfGuests());
-        System.out.println("Reservation added successfully.");
-     }
+//        public void addReservation(Booking reservation) {
+//      room.addBooking(reservation.getCheckInDate(),reservation.getCheckOutDate(),reservation.getNumberOfGuests());
+//        System.out.println("Reservation added successfully.");
+//     }
  
-      public void addRoom(int roomNumber, String room, guest guest) {
+      public void addRoom(int roomNumber, String room, guest guest,LocalDate checkInDate, LocalDate checkOutDate, int numberOfGuests) {
          
           Rooms newRoom = new Rooms(roomNumber, room);
           Booking reservation = new Booking(guest, newRoom);
-          newRoom.addReservation(reservation);
+      //    newRoom.addReservation(reservation);
+      reservation.addBooking(checkInDate, checkOutDate, numberOfGuests);
         System.out.println("Room " + roomNumber + " added successfully.");
     }
          
@@ -334,6 +335,7 @@ public static Map<Integer, Rooms> getRoomsByNumber() {
              o.writeObject(roomsByNumber);
              o.writeObject(listRooms);
              o.writeObject(roomNumbers);
+           //  o.close();
          }catch(IOException e){
              System.out.println(e);
          }
@@ -344,7 +346,8 @@ public static Map<Integer, Rooms> getRoomsByNumber() {
          try(ObjectInputStream o=new ObjectInputStream(new FileInputStream(filename))){ 
              roomsByNumber=(Map<Integer,Rooms>)o.readObject();
                  listRooms = (List<Rooms>) o.readObject();
-            roomNumbers = (List<Integer>) o.readObject();            
+            roomNumbers = (List<Integer>) o.readObject();     
+          //  o.close();
             System.out.println("");
             }  catch(IOException  |ClassNotFoundException e){
              System.out.println(e);
