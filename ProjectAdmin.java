@@ -53,7 +53,7 @@ private void ViewReport(){
     System.out.println(r.getRoomNumber()+"   " + r.getCategory() );
     System.out.println(r.getReservation()+"  "+r.getCheckInDate() + " until " + r.getCheckOutDate() );
     //most reserved room--->-->loop to loop on all of the rooms and return the most reserved 
-   //room by the room number though out a reservation counter
+   //room by the room number though out a reservation counter in the room class
     System.out.println(r.findmostrevenue());
     
 } 
