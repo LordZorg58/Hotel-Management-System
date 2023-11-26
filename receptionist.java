@@ -45,7 +45,6 @@ public class receptionist extends person {
         for (reservation reservation : Reservations) {
             System.out.println("Guest: " + reservation.getGuest().getName());
             System.out.println("Room Category: " + reservation.getRoomCategory());
-            System.out.println("Preferences: " + reservation.getPreferences());
             System.out.println("Services: " + reservation.getServices());
             System.out.println("Checked-in: " + reservation.isCheckedIn());
             System.out.println();
