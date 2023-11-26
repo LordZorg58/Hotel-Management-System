@@ -1,31 +1,39 @@
 package hotel;
 
+import java.util.ArrayList;
 import java.util.Date;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-
-public class Booking {
-
-    private String bookingId;// name of guest+phone FROM guest class 
-    private String roomType;//enumeration  rooms htb2h (room roomtype)
-    public  Date checkIn;//(day ,month,year)//note el months from zero 
-    public Date checkOut;//(day ,month,year)
-    private Integer rating; // Changed from int to Integer to allow null values
-
-
-    public long calculateNumberOfNights() //we can use it later to calulate the price of room 
-    {
-        long diffInMilliseconds = checkOut.getTime() - checkIn.getTime();
-        return MILLISECONDS.toDays(diffInMilliseconds);
-    }
-
+public class Booking  {
+    
+    private static ArrayList<Booking> bookings = new ArrayList<>();
+    private String bookingId; 
+    private String roomType; 
+    private int roomnumber;
+    public  Date checkIn;
+    public Date checkOut;
+    private Integer rating;
     // Constructor
-    public Booking(guest Guest, String roomType, Date checkIn, Date checkOut,Integer rating) {
+    public Booking(guest Guest,Date checkIn, Date checkOut, Rooms roomType) {
         this.bookingId =Guest.getName()+Guest.getPhone();  
-        this.roomType = roomType;
+        this.roomType = roomType.getCategory();
         this.checkIn = checkIn;
         this.checkOut = checkOut;
         this.rating = rating;
     }
+    public Booking(guest Guest,Date checkIn, Date checkOut, Rooms roomType,Rooms roomnumber) {
+        this.bookingId =Guest.getName()+Guest.getPhone();  
+        this.roomType = roomType.getCategory();
+        this.checkIn = checkIn;
+        this.checkOut = checkOut;
+        this.rating = rating;
+        this.roomnumber=roomnumber.getRoomNumber();
+    }
+    public Booking(Date checkIn, Date checkOut, Rooms roomType) {
+        this.checkIn = checkIn;
+        this.checkOut = checkOut;
+        this.roomType = roomType.getCategory();
+    }
+
 
     // Getters and Setters
     public String getBookingId() {
@@ -58,172 +66,19 @@ public class Booking {
     public void setRating(int rating) {
         this.rating = rating;
     }
-
-    // Override toString method to print booking details
-
-    @Override
-    public String toString() {
-        return "Booking{" + "bookingId=" + bookingId + ", roomType=" + roomType + ", checkIn=" + checkIn + ", checkOut=" + checkOut + ", rating=" + rating + '}';
-    }
-  
-    
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-///////////////////////this is the old one try to build something better 
-/*
-public class Booking {
-
-    private static List<Booking> bookings = new ArrayList<>();
-    private Rooms room;
-    
-    private LocalDate checkInDate;
-    private LocalDate checkOutDate;
-    private Rooms bookedRoom;
-    private int numberOfNights;
-
-    
-    
-////////////////////////////////////////CONSTRUCTOR ///////////////////////////////////////////////////////////////////////////
-    public Booking(guest g, Rooms room,LocalDate checkInDate, LocalDate checkOutDate, Rooms bookedRoom) {
-       
-        this.g = g;
-        this.room = room;
-        this.checkInDate = checkInDate;
-        this.checkOutDate = checkOutDate;
-        this.numberOfGuests = numberOfGuests;
-        this.bookedRoom = bookedRoom;
-
-    }
-  
-    
-/////////////////////////////////SETTERS AND GETTERS////////////////////////////////////////////////////////////////////////
-    
-    public static List<Booking> getBookings() {
+    public static ArrayList<Booking> getBookings() {
         return bookings;
     }
-    public static void setBookings(List<Booking> bookings) {
+    public static void setBookings(ArrayList<Booking> bookings) {
         Booking.bookings = bookings;
     }
-
-    public guest getG() {
-        return g;
+    public int getRoomnumber() {
+        return roomnumber;
     }
-    public void setG(guest g) {
-        this.g = g;
-    }
-
-    public Rooms getRoom() {
-        return room;
-    }
-    public void setRoom(Rooms room) {
-        this.room = room;
+    public void setRoomnumber(int roomnumber) {
+        this.roomnumber = roomnumber;
     }
 
-    public LocalDate getCheckInDate() {
-        return checkInDate;
-    }
-    public void setCheckInDate(LocalDate checkInDate) {
-        this.checkInDate = checkInDate;
-    }
-    public LocalDate getCheckOutDate() {
-        return checkOutDate;
-    }
-    public void setCheckOutDate(LocalDate checkOutDate) {
-        this.checkOutDate = checkOutDate;
-    }
-
-    public int getNumberOfGuests() {
-        return numberOfGuests;
-    }
-    public void setNumberOfGuests(int numberOfGuests) {
-        this.numberOfGuests = numberOfGuests;
-    }
-  
-    public Rooms getBookedRoom() {
-        return bookedRoom;
-    }
-  public void setBookedRoom(Rooms bookedRoom) {
-        this.bookedRoom = bookedRoom;
-    }
- 
-
-  
-  
-  
-  //////////////////////////////////ADD,REMOVE,EDIT///////////////////////////////////////////////////////////////////////
-    public void addBooking(LocalDate checkInDate, LocalDate checkOutDate, int numberOfGuests) {
-
-        if (bookedRoom.isAvailability()) {
-            Booking newBooking = new Booking(checkInDate, checkOutDate, numberOfGuests, bookedRoom);
-            bookings.add(newBooking);
-            bookedRoom.setAvailability(false);
-            System.out.println("Booking added successfully.");
-
-        } else {
-            System.out.println("Room is not available for booking.");
-        }
-
-    }
-    public void removeBooking(int index) {
-
-        if (index >= 0 && index < bookings.size()) {
-
-            Booking removedBooking = bookings.remove(index);
-
-            bookedRoom.setAvailability(true);
-
-            System.out.println("Booking removed successfully.");
-
-        } else {
-            System.out.println("Invalid index. No booking removed.");
-        }
-    }
-    public void editBooking(int index, LocalDate checkInDate, LocalDate checkOutDate, int numberOfGuests) {
-
-        if (index >= 0 && index < bookings.size()) {
-
-            Booking booking = bookings.get(index);
-
-            booking.setCheckInDate(checkInDate);
-
-            booking.setCheckOutDate(checkOutDate);
-
-            booking.setNumberOfGuests(numberOfGuests);
-
-            System.out.println("Booking edited successfully.");
-
-        } else {
-
-            System.out.println("Invalid index. No booking edited.");
-
-        }
-
-    } 
-
-    
-    
-    
-    //////////////////////////////////DISPLAY BOOKING////////////////////////////////////////////////////////////////////////
     public static void displayBookings() {
         
         if (bookings.isEmpty()) {
@@ -240,13 +95,72 @@ public class Booking {
 
     }
 
- 
+    public void addBooking(guest Guest, Date checkIn, Date checkOut, Rooms roomType, Rooms roomnumber) {
 
+    if (roomnumber.isAvailability()) {
+        Booking newBooking = new Booking(Guest, checkIn, checkOut, roomType, roomnumber);
+        bookings.add(newBooking);
+        roomnumber.setAvailability(false);
+        System.out.println("Booking added successfully.");
 
-}*/
+    } else {
+        System.out.println("Room is not available for booking.");
+    }
 
+}
+public void editBooking(String bookingId, Date checkIn, Date checkOut) {
 
+        Booking bookingToEdit = null;
+        for (Booking booking : bookings) {
+            if (booking.getBookingId().equals(bookingId)) {
+                bookingToEdit = booking;
+                break;
+            }
+        }
 
+        if (bookingToEdit != null) {
+            bookingToEdit.setCheckIn(checkIn);
+            bookingToEdit.setCheckOut(checkOut);
+            System.out.println("Booking edited successfully.");
+        } else {
+            System.out.println("Invalid booking ID. No booking edited.");
+        }
+
+    }
+
+public void removeBooking(String bookingId, Rooms roomnumber) {
+    Booking bookingToRemove = null;
+    for (Booking booking : bookings) {
+        if (booking.getBookingId().equals(bookingId)) {
+            bookingToRemove = booking;
+            break;
+        }
+    }
+
+    if (bookingToRemove != null) {
+        bookings.remove(bookingToRemove);
+        roomnumber.setAvailability(false);
+        System.out.println("Booking removed successfully.");
+    } else {
+        System.out.println("Invalid booking ID. No booking removed.");
+    }
+}
+// Override toString method to print booking details
+        public long calculateNumberOfNights()  
+    {
+        long diffInMilliseconds = checkOut.getTime() - checkIn.getTime();
+        return MILLISECONDS.toDays(diffInMilliseconds);
+    }
+
+    @Override
+    public String toString() {
+        return "Booking{" + "bookingId=" + bookingId + ", roomType=" + roomType + ", roomnumber=" + roomnumber + ", checkIn=" + checkIn + ", checkOut=" + checkOut + ", rating=" + rating + '}';
+    }
+    
+
+  
+    
+}
 //////////////////////////running ///////////////////////////////
 //        public static void main(String[] args) {
 //     
@@ -262,3 +176,5 @@ public class Booking {
 //        long numberOfNights = booking.calculateNumberOfNights();
 //        System.out.println("Number of nights: " + numberOfNights);
 //    }
+
+
