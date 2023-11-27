@@ -1,3 +1,5 @@
+package hotel;
+
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -7,25 +9,17 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Scanner;
 
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 
-/**
- *
- * @author DELL
- */
 
 public class Rooms extends Booking implements Serializable{   //The Serializable interface is a marker interface. It has no methods
      Rooms room;
-     guest guest;
+     guest Guest;
       private int roomNumber;
       private String category;
       private boolean availability;
@@ -33,29 +27,33 @@ public class Rooms extends Booking implements Serializable{   //The Serializable
       private double revenue;
      private static List<Rooms> listRooms ;//de 3shan 23mel list feha kol 2l rooms ta2reban lazm tb2a fe 2l admin class
 
-     private static List<Integer> roomNumbers ;  // hena 2na hawelt 23mel list 2hot feha kol 2l room numbers 3shan tsa3edny fe 2ny 23mel add le new room
-     private static Map<Integer, Rooms> roomsByNumber = new HashMap<>();
+          private static Map<Integer, Rooms> roomsByNumber = new HashMap<>();
+
+
+
+    public Rooms(Rooms room, guest Guest, int roomNumber, Date checkIn, Date checkOut, Rooms roomType) {
+        super(checkIn, checkOut, roomType);
+        this.room = room;
+        this.Guest = Guest;
+        this.roomNumber = roomNumber;
+    }
    
 
-    public Rooms( Rooms room,int roomNumber, String category, boolean availability, List<Booking> reservation, double revenue) {
+ 
+
+    public Rooms( int roomNumber, String category) {
        
         this.roomNumber = roomNumber;
         this.category = category;
         this.availability = availability;
         this.reservation = reservation;
         this.revenue = revenue;
-        roomNumbers.add(roomNumber); // Add the room number to the list
         listRooms.add(this); // Add the room to the list of rooms
         roomsByNumber.put(roomNumber,this );
     }
 
-    public Rooms(guest guest, int roomNumber, String category) {
-        this.guest = guest;
-        this.roomNumber = roomNumber;
-        this.category = category;
-    }
-
-    public Rooms(int roomNumber, String category) {
+    public Rooms(guest Guest, int roomNumber, String category) {
+        this.Guest = Guest;
         this.roomNumber = roomNumber;
         this.category = category;
     }
@@ -67,52 +65,41 @@ public class Rooms extends Booking implements Serializable{   //The Serializable
         this.availability = true;
         this.reservation = new ArrayList<>();
         this.revenue = 0.0;
-         roomNumbers.add(roomNumber); // Add the room number to the list
         listRooms.add(this); // Add the room to the list of rooms
         roomsByNumber.put(roomNumber,this);
 
     }
 
-    public Rooms() {
-    }
+
    
 
     public int getRoomNumber() {
         return roomNumber;
     }
-
     public void setRoomNumber(int roomNumber) {
         this.roomNumber = roomNumber;
     }
-
     public String getCategory() {
         return category;
     }
-
     public void setCategory(String category) {
         this.category = category;
     }
-
     public boolean isAvailability() {
         return availability;
     }
-
     public void setAvailability(boolean availability) {
         this.availability = availability;
     }
-
     public List<Booking> getReservation() {
         return reservation;
     }
-
     public void setReservation(List<Booking> reservation) {
         this.reservation = reservation;
     }
-
     public double getRevenue() {
         return revenue;
     }
-
     public void setRevenue(double revenue) {
         this.revenue = revenue;
     }
@@ -128,21 +115,21 @@ public static Map<Integer, Rooms> getRoomsByNumber() {
     
     ///////////////////////////  ADD , REMOVE , EDIT FUNCTIONS /////////////////////////////////
    
-//        public void addReservation(Booking reservation) {
-//      room.addBooking(reservation.getCheckInDate(),reservation.getCheckOutDate(),reservation.getNumberOfGuests());
-//        System.out.println("Reservation added successfully.");
-//     }
+
  
-      public void addRoom(int roomNumber, String room, guest guest,LocalDate checkInDate, LocalDate checkOutDate, int numberOfGuests) {
+        public void addRoom(int roomNumber, Rooms room, guest Guest,Date checkInDate, Date checkOutDate) {
          
           Rooms newRoom = new Rooms(roomNumber, room);
-          Booking reservation = new Booking(guest, newRoom);
+          Booking reservation = new Booking(Guest,checkInDate,checkOutDate, newRoom,roomNumber);
       //    newRoom.addReservation(reservation);
-      reservation.addBooking(checkInDate, checkOutDate, numberOfGuests);
+      //checkInDate, checkOutDate,room.getCategory(),  roomNumber
+      //    public void addBooking(guest Guest, Date checkIn, Date checkOut, Rooms roomType, Rooms roomnumber) {
+
+      reservation.addBooking( Guest,  checkInDate,  checkOutDate, room.getcategory(),roomNumber);//enum
+      
         System.out.println("Room " + roomNumber + " added successfully.");
     }
-         
-          public void editRoom(int roomNumber, String newCategory, boolean newAvailability) {
+        public void editRoom(int roomNumber, String newCategory, boolean newAvailability) {
          
       //hena 2na badwer 3la 2l room
         if(roomsByNumber.containsKey(roomNumber)){
@@ -155,8 +142,7 @@ public static Map<Integer, Rooms> getRoomsByNumber() {
               System.out.println("Room that Has number: "+roomNumber+"->>NOT FOUND ");
             }
        
-        }
-     
+        }    
          public void removeRoom(int roomNumber) {
       //hena 2na badwer 3la 2l room
           if (roomsByNumber.containsKey(roomNumber)) {
@@ -206,11 +192,7 @@ public static Map<Integer, Rooms> getRoomsByNumber() {
     }
   
   
- 
-  
-  
-  
-  
+
      
       ///////////////////////////  search in the list by number and category /////////////////////////////
   
@@ -255,14 +237,7 @@ public static Map<Integer, Rooms> getRoomsByNumber() {
 } 
      
      
-     
-     
-     
-     
-     
-     
-     
-     
+
      
       public Rooms getRoomDetails(int roomNumber) {
           if(roomsByNumber.containsKey(roomNumber)){
@@ -291,14 +266,16 @@ public static Map<Integer, Rooms> getRoomsByNumber() {
            return roomsByNumber.containsKey(roomNumber);  
        }
    
-    private double calculateReservationCost(Booking reservation) {                   // 3d array roomnumber , category , counter for reservation  add re
+        
+       //fakrii fe el enum 
+    private double calculateReservationCost(Booking reservation) {   // 3d array roomnumber , category , counter for reservation  add re
       double ratepernight;
-      switch (reservation.getBookedRoom().getCategory()) {
+      switch (reservation.getBookedRoom().getCategory()) {//get bookedroom
         case "Single":
-            ratepernight = 150.0; // Set the rate for the Single category
+            ratepernight = 150.0; 
             break;
         case "Double":
-            ratepernight = 200.0; // Set the rate for the Double category
+            ratepernight = 200.0; 
             break;
             case "Studio Rooms":
             ratepernight = 250.0;
@@ -312,20 +289,18 @@ public static Map<Integer, Rooms> getRoomsByNumber() {
             case "Suites":
             ratepernight = 650.0;
             break;
-            case "Presidential Suites ":
+            case "Presidential Suites":
             ratepernight = 700.0;
             break;
        
         default:
             ratepernight = 1000.0; // Default rate if category is not recognized
             break;
-        }  int numberOfNights = calculateNumberOfNights(reservation);
+        }  
+      long numberOfNights = reservation.calculateNumberOfNights();
      return numberOfNights * ratepernight;
 }
 
-     private int calculateNumberOfNights(Booking reservation) {
-     return (int) reservation.getCheckInDate().until(reservation.getCheckOutDate()).getDays();
-}
        
      /////////////// Binary File //////////
      
@@ -333,8 +308,7 @@ public static Map<Integer, Rooms> getRoomsByNumber() {
      {
          try(ObjectOutputStream o=new ObjectOutputStream(new FileOutputStream(filename))) {
              o.writeObject(roomsByNumber);
-             o.writeObject(listRooms);
-             o.writeObject(roomNumbers);
+
            //  o.close();
          }catch(IOException e){
              System.out.println(e);
@@ -345,8 +319,7 @@ public static Map<Integer, Rooms> getRoomsByNumber() {
      {
          try(ObjectInputStream o=new ObjectInputStream(new FileInputStream(filename))){ 
              roomsByNumber=(Map<Integer,Rooms>)o.readObject();
-                 listRooms = (List<Rooms>) o.readObject();
-            roomNumbers = (List<Integer>) o.readObject();     
+
           //  o.close();
             System.out.println("");
             }  catch(IOException  |ClassNotFoundException e){
