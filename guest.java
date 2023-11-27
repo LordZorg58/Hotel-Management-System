@@ -22,14 +22,15 @@ public guest(String name, String email, String phone,ArrayList<Booking> bookingH
     }
     
 //view from BookingList     
-    public void viewHistory() {
-
-     for (int i = 0; i < bookingHistory.size(); i++) {
-         Booking booking = bookingHistory.get(i);
-         System.out.println(booking); // show  the booking information
-
+public void viewHistory(String bookingId) {
+    for (int i = 0; i < bookingHistory.size(); i++) {
+        Booking booking = bookingHistory.get(i);
+        if (booking.getBookingId().equals(bookingId)) {
+            System.out.println(booking); 
+        }
     }
 }
+
     
 //rating
   public int rate(String bookingId, String value) {
