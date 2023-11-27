@@ -1,5 +1,6 @@
 package hotel;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -12,8 +13,14 @@ public class Booking  {
     public  Date checkIn;
     public Date checkOut;
     private Integer rating;
+    private Rooms  bookedRoom;//room feha attrbuites 
+
     // Constructor
-    public Booking(guest Guest,Date checkIn, Date checkOut, Rooms roomType) {
+    
+    public Booking(guest Guest, Date checkIn1, Date checkOut1, int roomType1, int roomnumber1)
+    {}
+    
+    public Booking(guest Guest, Date checkOut, Date checkIn, Rooms roomType, int roomNumber) {
         this.bookingId =Guest.getName()+Guest.getPhone();  
         this.roomType = roomType.getCategory();
         this.checkIn = checkIn;
@@ -78,6 +85,12 @@ public class Booking  {
     public void setRoomnumber(int roomnumber) {
         this.roomnumber = roomnumber;
     }
+    public Rooms getBookedRoom() {
+        return bookedRoom;
+    }
+    public void setBookedRoom(Rooms bookedRoom) {
+        this.bookedRoom = bookedRoom;
+    }
 
     public static void displayBookings() {
         
@@ -95,7 +108,7 @@ public class Booking  {
 
     }
 
-    public void addBooking(guest Guest, Date checkIn, Date checkOut, Rooms roomType, Rooms roomnumber) {
+  public void addBooking(guest Guest, Date checkIn, Date checkOut, Rooms roomType, Rooms roomnumber) {
 
     if (roomnumber.isAvailability()) {
         Booking newBooking = new Booking(Guest, checkIn, checkOut, roomType, roomnumber);
@@ -108,6 +121,7 @@ public class Booking  {
     }
 
 }
+    
 public void editBooking(String bookingId, Date checkIn, Date checkOut) {
 
         Booking bookingToEdit = null;
@@ -156,6 +170,12 @@ public void removeBooking(String bookingId, Rooms roomnumber) {
     public String toString() {
         return "Booking{" + "bookingId=" + bookingId + ", roomType=" + roomType + ", roomnumber=" + roomnumber + ", checkIn=" + checkIn + ", checkOut=" + checkOut + ", rating=" + rating + '}';
     }
+
+    Object getG() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+   
     
 
   
