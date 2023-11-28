@@ -1,0 +1,73 @@
+import java.util.ArrayList;
+import java.util.Date;
+
+public class receptionist {
+    private String name;
+    private String employeeId;
+    private ArrayList<Booking> bookings;
+
+    public receptionist(String name, String employeeId) {
+        this.name = name;
+        this.employeeId = employeeId;
+        this.bookings = new ArrayList<>();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getEmployeeId() {
+        return employeeId;
+    }
+
+    public void addBooking(guest guest, Date checkIn, Date checkOut, Rooms roomType, int roomNumber) {
+        Booking newBooking = new Booking(guest, checkIn, checkOut, roomType, roomNumber);
+        bookings.add(newBooking);
+        roomType.setAvailability(false);
+        System.out.println("Reservation created successfully.");
+    }
+
+   public void selectRoomCategory(Rooms roomType) {
+        ArrayList<Rooms> availableRooms = getAvailableRoomsByCategory(roomType);
+
+        if (availableRooms.isEmpty()) {
+            System.out.println("No available rooms in the selected category.");
+        } else {
+            System.out.println("Available Rooms in Category: " + roomType.getCategory());
+            for (Rooms room : availableRooms) {
+                System.out.println("Room Number: " + room.getRoomNumber());
+                
+            }
+
+        }
+    }
+
+
+    public void addAdditionalServices(Booking booking, AdditionalServices additionalServices) {
+        booking.getAdditionalServices().add(additionalServices);
+        System.out.println("Additional services added to the reservation.");
+    }
+
+    public void cancelReservation(Booking booking) {
+        bookings.remove(booking);
+        booking.getRoomType().setAvailability(true);
+        System.out.println("Reservation canceled successfully.");
+    }
+
+    public void checkout(Booking booking) {
+        System.out.println("Checkout completed.");
+    }
+
+    public void displayBookings() {
+        if (bookings.isEmpty()) {
+            System.out.println("No bookings.");
+        } else {
+            System.out.println("All Bookings:");
+            for (Booking booking : bookings) {
+                System.out.println(booking);
+            }
+        }
+    }
+
+    
+}
