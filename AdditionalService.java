@@ -1,3 +1,6 @@
+package hotel;
+
+
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
@@ -41,14 +44,10 @@ class AdditionalService {
     public void addRevenue(double amount) {
         revenue += amount;
     }
-}
-
-class ReportGenerator {
-    private Map<String, AdditionalService> services;
+        private Map<String, AdditionalService> services;
     
-    public ReportGenerator() {
-        services = new HashMap<>();
-    }
+         services = new HashMap<>();
+    
     
     public void addService(String serviceName) {
         AdditionalService service = new AdditionalService(serviceName);
@@ -108,5 +107,7 @@ class ReportGenerator {
         return mostRevenueService;
     }
 }
+
+
 
 
