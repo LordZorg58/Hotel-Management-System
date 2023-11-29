@@ -1,23 +1,12 @@
 import java.util.ArrayList;
 import java.util.Date;
 
-public class receptionist {
-    private String name;
-    private String employeeId;
+public class receptionist extends person {
     private ArrayList<Booking> bookings;
 
-    public receptionist(String name, String employeeId) {
-        this.name = name;
-        this.employeeId = employeeId;
+    public receptionist(String name, String email, String phone, AccountType accountType) {
+        super(name, email, phone, accountType);
         this.bookings = new ArrayList<>();
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getEmployeeId() {
-        return employeeId;
     }
 
     public void addBooking(guest guest, Date checkIn, Date checkOut, Rooms roomType, int roomNumber) {
@@ -41,7 +30,6 @@ public class receptionist {
 
         }
     }
-
 
     public void addAdditionalServices(Booking booking, AdditionalServices additionalServices) {
         booking.getAdditionalServices().add(additionalServices);
@@ -68,6 +56,4 @@ public class receptionist {
             }
         }
     }
-
-    
 }
