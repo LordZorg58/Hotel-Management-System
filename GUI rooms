@@ -1,0 +1,382 @@
+package hotel;
+
+import java.util.List;
+import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import java.util.Optional;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.geometry.Pos;
+
+public class RoomManagement extends Application {
+    private BorderPane borderPane = new BorderPane();
+    private TableView<Rooms> roomTableView = new TableView<>();
+    private TextField roomNumberField = new TextField();
+    private TextField priceField = new TextField();
+
+    private Rooms selectedRoom;
+
+    private ComboBox<RoomCategory> categoryComboBox = new ComboBox<>();
+
+    private ComboBox<Boolean> statusComboBox = new ComboBox<>();
+
+    @Override
+    public void start(Stage primaryStage) {
+        borderPane.setPadding(new Insets(0, 0, 20, 0));
+
+        HBox top = new HBox();
+        top.setStyle("-fx-background-color:#24344D;");
+        top.setPadding(new Insets(20, 20, 20, 18));
+top.setAlignment(Pos.CENTER);
+        Button roomsButton = createStyledButton("Rooms");
+        Button reservationButton = createStyledButton("Reservation");
+        Button guestButton = createStyledButton("Guest");
+        Button servicesButton = createStyledButton("Services");
+        Button adminButton = createStyledButton("Admin");
+//        Button logoutButton = createStyledButton("Logout");
+
+        VBox leftMenuVBox = new VBox();
+        leftMenuVBox.setSpacing(20);
+        leftMenuVBox.setPadding(new Insets(20, 20, 20, 20));
+        leftMenuVBox.setStyle("-fx-background-color:#3E567C");
+
+        leftMenuVBox.getChildren().addAll(roomsButton, reservationButton, guestButton, servicesButton, adminButton);
+        borderPane.setLeft(leftMenuVBox);
+
+        roomsButton.setOnAction(e -> showRoomsPage());
+         
+        HBox titleBox = new HBox();
+        titleBox.setAlignment(Pos.CENTER);
+//        top.getChildren().addAll(titleBox, logoutButton);
+
+        GridPane addRoomsPane = createAddRoomsPane();
+
+        borderPane.setCenter(addRoomsPane);
+borderPane.setTop(top);
+         // Create the label and add it to the top HBox
+        Label titleLabel = new Label("Rooms Management System ");
+        titleLabel.setStyle("-fx-text-fill: #F8F2EB; -fx-font-size: 18pt; -fx-font-weight: bold;");
+        top.getChildren().add(titleLabel);
+
+        
+        
+        
+        
+        
+        Scene scene = new Scene(borderPane, 800, 600);
+        primaryStage.setTitle("Hotel System");
+        primaryStage.setScene(scene);
+
+        // Load data when the application starts
+        Rooms.readRoomsHashMapFromBinary("C:/Users/DELL/Documents/NetBeansProjects/hotel/Rooms.bin");
+
+        // Save data when the application is closed
+        primaryStage.setOnCloseRequest(e -> {
+            Rooms.writeHashMapToBinary("C:/Users/DELL/Documents/NetBeansProjects/hotel/Rooms.bin");
+        });
+
+        primaryStage.show();
+    }
+
+    private void showRoomsPage() {
+        // Implement the logic to show the Rooms page
+    }
+
+    private Button createStyledButton(String text) {
+        Button button = new Button(text);
+        button.setStyle("-fx-background-color: transparent; -fx-text-fill: #F8F2EB; -fx-font-weight: bold; -fx-font-size: 14pt;");
+        return button;
+    }
+
+    private GridPane createAddRoomsPane() {
+
+        GridPane addRoomsPane = new GridPane();
+        addRoomsPane.setHgap(20);
+        addRoomsPane.setVgap(20); // Added vertical gap
+        addRoomsPane.setPadding(new Insets(20));
+        addRoomsPane.setStyle("-fx-background-color:#A7BBCB");
+
+        Label roomNumberLabel = new Label("Room Number:");
+        roomNumberField = new TextField();
+
+        Label categoryLabel = new Label("Category:");
+        categoryComboBox.getItems().addAll(RoomCategory.values());
+
+        Label statusLabel = new Label("Status:");
+        TextField statusField = new TextField();
+
+        Label priceLabel = new Label("Price:");
+        priceField = new TextField();
+
+        Label searchRoomLabel = new Label("Room Number:");
+        TextField searchRoomNumberField = new TextField();
+
+        Label searchCategoryLabel = new Label("Category:");
+        ComboBox<RoomCategory> searchCategoryComboBox = new ComboBox<>();
+        searchCategoryComboBox.getItems().addAll(RoomCategory.values());
+
+        Button searchButton = new Button("Search");
+        Rooms.readRoomsHashMapFromBinary("C:/Users/DELL/Documents/NetBeansProjects/hotel/Rooms.bin");
+
+        roomTableView.setEditable(false);
+        roomTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+//        TableColumn<Rooms, Integer> roomNumberCol = new TableColumn<>("Room Number");
+//        TableColumn<Rooms, RoomCategory> categoryCol = new TableColumn<>("Category");
+//        TableColumn<Rooms, Double> priceCol = new TableColumn<>("Price");
+//        TableColumn<Rooms, Boolean> availabilityCol = new TableColumn<>("Availability");
+//
+//        roomNumberCol.setCellValueFactory(new PropertyValueFactory<>("roomNumber"));
+//        categoryCol.setCellValueFactory(new PropertyValueFactory<>("category"));
+//        availabilityCol.setCellValueFactory(new PropertyValueFactory<>("status"));
+//        priceCol.setCellValueFactory(new PropertyValueFactory<>("price"));
+//        availabilityCol.SET
+
+TableColumn<Rooms, Integer> roomNumberCol = new TableColumn<>("Room Number");
+        TableColumn<Rooms, RoomCategory> categoryCol = new TableColumn<>("Category");
+        TableColumn<Rooms, Double> priceCol = new TableColumn<>("Price");
+        TableColumn<Rooms, String> statusCol = new TableColumn<>("Status");
+
+        roomNumberCol.setCellValueFactory(new PropertyValueFactory<>("roomNumber"));
+        categoryCol.setCellValueFactory(new PropertyValueFactory<>("category"));
+        statusCol.setCellValueFactory(cellData -> {
+            boolean availability = cellData.getValue().getstatues();
+            return new SimpleStringProperty(availability ? "Available" : "Not Available");
+        });
+        priceCol.setCellValueFactory(new PropertyValueFactory<>("price"));
+
+        roomTableView.getColumns().addAll(roomNumberCol, categoryCol, priceCol, statusCol);
+        ObservableList<Rooms> roomData = FXCollections.observableArrayList(Rooms.getRoomsByNumber().values());
+        roomTableView.setItems(roomData);
+        roomTableView.setPrefWidth(800);
+        roomTableView.setPrefHeight(400);
+
+      
+        statusComboBox.getItems().addAll(true, false);
+
+        Button addButton = new Button("Add");
+        Button editButton = new Button("Edit");
+        Button removeButton = new Button("Remove");
+        Button refreshButton = new Button("Refresh");
+
+        addButton.setStyle("-fx-font-size: 16pt; -fx-min-width: 120;");
+        editButton.setStyle("-fx-font-size: 16pt; -fx-min-width: 120;");
+        removeButton.setStyle("-fx-font-size: 16pt; -fx-min-width: 120;");
+        refreshButton.setStyle("-fx-font-size: 16pt; -fx-min-width: 200;");
+        
+        
+        
+        
+        addButton.setOnAction(e -> {
+            try {
+                int roomNumber = Integer.parseInt(roomNumberField.getText());
+                RoomCategory category = categoryComboBox.getValue();
+                boolean availability = statusComboBox.getValue();
+                double price = Double.parseDouble(priceField.getText());
+
+                Rooms room = new Rooms(roomNumber, category, price, availability);
+                roomData.add(room);
+                clearFields(roomNumberField, priceField);
+                clearFields(statusComboBox, categoryComboBox);
+
+                // Save the updated data to the binary file
+                Rooms.writeHashMapToBinary("C:/Users/DELL/Documents/NetBeansProjects/hotel/Rooms.bin");
+
+            } catch (NumberFormatException | NullPointerException ex) {
+                // Handle NumberFormatException or NullPointerException
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Invalid Input");
+                alert.setHeaderText(null);
+                alert.setContentText("Please enter valid values for Room Number, Price, Category, and Status.");
+                alert.showAndWait();
+            }
+        });
+
+
+
+        editButton.setOnAction(e -> {
+            selectedRoom = roomTableView.getSelectionModel().getSelectedItem();
+            if (selectedRoom != null) {
+                 refreshTable();
+                // Populate data back to the text fields for editing
+                roomNumberField.setText(String.valueOf(selectedRoom.getRoomNumber()));
+                categoryComboBox.setValue(selectedRoom.getCategory());
+                statusComboBox.setValue(selectedRoom.isAvailability(selectedRoom.getstatues()));
+                priceField.setText(String.valueOf(selectedRoom.getPrice()));
+                Rooms.getRoomsByNumber().put(selectedRoom.getRoomNumber(), selectedRoom);
+                    Rooms.writeRoomsHashMapToBinary("C:/Users/DELL/Documents/NetBeansProjects/hotel/Rooms.bin");
+            } else {
+                // Display a warning or prompt to select a room
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("No Room Selected");
+                alert.setHeaderText(null);
+                alert.setContentText("Please select a room to edit.");
+                alert.showAndWait();
+            }
+        });
+
+        removeButton.setOnAction(e -> {
+            selectedRoom = roomTableView.getSelectionModel().getSelectedItem();
+            if (selectedRoom != null) {
+                Alert confirmRemove = new Alert(Alert.AlertType.CONFIRMATION);
+                confirmRemove.setTitle("Confirm Removal");
+                confirmRemove.setHeaderText(null);
+                confirmRemove.setContentText("Are you sure you want to remove this room?");
+                Optional<ButtonType> result = confirmRemove.showAndWait();
+
+                if (result.isPresent() && result.get() == ButtonType.OK) {
+                    roomData.remove(selectedRoom);
+                    Rooms.getRoomsByNumber().remove(selectedRoom.getRoomNumber());
+                    Rooms.writeRoomsHashMapToBinary("C:/Users/DELL/Documents/NetBeansProjects/hotel/Rooms.bin");
+                }
+            } else {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("No Room Selected");
+                alert.setHeaderText(null);
+                alert.setContentText("Please select a room to remove.");
+                alert.showAndWait();
+            }
+        });
+
+        refreshButton.setOnAction(e -> refreshTable());
+
+        roomNumberLabel.setStyle("-fx-font-size: 16pt; -fx-min-width: 70;");
+        roomNumberField.setStyle("-fx-font-size: 16pt; -fx-min-width: 70;");
+        categoryLabel.setStyle("-fx-font-size: 16pt; -fx-min-width: 70;");
+        categoryComboBox.setStyle("-fx-font-size: 16pt; -fx-min-width: 70;");
+        statusLabel.setStyle("-fx-font-size: 16pt; -fx-min-width: 70;");
+        statusComboBox.setStyle("-fx-font-size: 16pt; -fx-min-width: 70;");
+        priceLabel.setStyle("-fx-font-size: 16pt; -fx-min-width: 70;");
+        priceField.setStyle("-fx-font-size: 16pt; -fx-min-width: 70;");
+
+        addRoomsPane.add(roomNumberLabel, 1, 3);
+        addRoomsPane.add(roomNumberField, 2, 3);
+        addRoomsPane.add(categoryLabel, 1, 4);
+        addRoomsPane.add(categoryComboBox, 2, 4);
+        addRoomsPane.add(statusLabel, 1, 5);
+        addRoomsPane.add(statusComboBox, 2, 5);
+        addRoomsPane.add(priceLabel, 1, 6);
+        addRoomsPane.add(priceField, 2, 6);
+        addRoomsPane.add(roomTableView, 5, 3, 10, 7);
+        addRoomsPane.add(refreshButton, 5, 12);
+        HBox buttonsBox = new HBox(10, addButton, editButton, removeButton);
+        buttonsBox.setAlignment(Pos.CENTER);
+        addRoomsPane.add(buttonsBox, 1, 7, 2, 1);
+
+        HBox search = new HBox();
+        search.getChildren().addAll(searchCategoryLabel, searchCategoryComboBox, searchRoomLabel, searchRoomNumberField, searchButton);
+        search.setSpacing(10);
+        search.setPadding(new Insets(2, 2, 2, 2));
+        addRoomsPane.add(search, 5, 2);
+
+        
+        
+        
+        
+        searchButton.setOnAction(e -> {
+    String searchRoomNumberText = searchRoomNumberField.getText().trim();
+    RoomCategory searchCategory = searchCategoryComboBox.getValue();
+
+    if (!searchRoomNumberText.isEmpty() && searchCategory != null) {
+        // Both room number and category provided
+        try {
+            int searchRoomNumber = Integer.parseInt(searchRoomNumberText);
+            Rooms roomsInstance = new Rooms();
+            Rooms searchedRoom = roomsInstance.searchRoomByNumber(searchRoomNumber);
+
+            if (searchedRoom != null && searchedRoom.getCategory() == searchCategory) {
+                roomTableView.getItems().clear();
+                roomTableView.getItems().add(searchedRoom);
+                 clearFields(searchRoomNumberField);
+                clearFields( searchCategoryComboBox);
+            } else {
+                showAlert("No Room Found", "No room matching the specified criteria was found.");
+            }
+        } catch (NumberFormatException ex) {
+            showAlert("Invalid Room Number", "Please enter a valid room number.");
+        }
+    } else if (!searchRoomNumberText.isEmpty()) {
+        // Only room number provided
+        try {
+            int searchRoomNumber = Integer.parseInt(searchRoomNumberText);
+            Rooms roomsInstance = new Rooms();
+            Rooms searchedRoom = roomsInstance.searchRoomByNumber(searchRoomNumber);
+
+            if (searchedRoom != null) {
+                roomTableView.getItems().clear();
+                roomTableView.getItems().add(searchedRoom);
+                clearFields(searchRoomNumberField);
+                clearFields( searchCategoryComboBox);
+            } else {
+                showAlert("No Room Found", "No room with the specified room number was found.");
+            }
+        } catch (NumberFormatException ex) {
+            showAlert("Invalid Room Number", "Please enter a valid room number.");
+        }
+    } else if (searchCategory != null) {
+        // Only category provided
+        Rooms roomsInstance = new Rooms();
+        List<Rooms> matchingRooms = roomsInstance.searchRooms(searchCategory);
+
+        if (!matchingRooms.isEmpty()) {
+            roomTableView.getItems().clear();
+            roomTableView.getItems().addAll(matchingRooms);
+             clearFields(searchRoomNumberField);
+             clearFields( searchCategoryComboBox);
+        } else {
+            showAlert("No Room Found", "No room with the specified category was found.");
+        }
+    } else {
+        // No criteria provided, show all rooms
+        roomTableView.getItems().clear();
+        roomTableView.getItems().addAll(Rooms.getRoomsByNumber().values());
+        clearFields(searchRoomNumberField);
+        clearFields( searchCategoryComboBox);
+    }
+});
+
+
+
+        return addRoomsPane;
+    }
+
+// Helper method to show alerts
+private void showAlert(String title, String content) {
+    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+    alert.setTitle(title);
+    alert.setHeaderText(null);
+    alert.setContentText(content);
+    alert.showAndWait();
+}
+
+    private void clearFields(TextField... fields) {
+        for (TextField field : fields) {
+            field.clear();
+        }
+    }
+
+    private void clearFields(ComboBox<?>... comboBoxes) {
+        for (ComboBox<?> comboBox : comboBoxes) {
+            comboBox.getSelectionModel().clearSelection();
+            comboBox.setValue(null);
+        }
+    }
+
+    private void refreshTable() {
+    ObservableList<Rooms> roomData = FXCollections.observableArrayList(Rooms.getRoomsByNumber().values());
+    roomTableView.setItems(roomData);
+}
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
