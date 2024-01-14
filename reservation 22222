@@ -1,0 +1,435 @@
+package hotel;
+
+import hotel.Rooms;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Scanner;
+import hotel.Guest;
+import java.util.List;
+
+public class Reservation {
+
+    private LocalDate arrivalDate;
+    private LocalDate departureDate;
+    private double price;
+    private String status;
+    private Guest guest;
+    private Rooms room;
+   
+  private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private String roomnum;
+    private Rooms BookedRooms;
+ private String g;
+    RoomCategory roomCategory;
+    
+     private List<String> preferences;
+    private List<String> additionalServices;
+    private boolean checkedOut;
+ public Reservation(Guest guest, LocalDate arrivalDate, LocalDate departureDate, Rooms room) {
+        this.arrivalDate = arrivalDate;
+        this.departureDate = departureDate;
+
+        // Calculate the price based on the room and duration of stay
+        int days = Period.between(arrivalDate, departureDate).getDays();
+        this.price = days * room.getPrice();
+
+        // Set the initial status
+        this.status = "reserved";
+
+        this.guest = guest;
+        this.room = room;
+    }
+
+  
+   public Reservation(String guestName, RoomCategory roomCategory) {
+    this.g = guestName;
+    this.roomCategory = roomCategory;
+   
+    this.checkedOut = false;
+    this.arrivalDate = LocalDate.now();  
+}
+
+    public Reservation(String guestName, RoomCategory roomCategory, LocalDate arrivalDate, LocalDate departureDate) {
+        this.g = guestName;
+        this.roomCategory = roomCategory;
+        this.arrivalDate = arrivalDate;
+        this.departureDate = departureDate;
+        this.preferences = new ArrayList<>();
+    this.additionalServices = new ArrayList<>();
+        this.guest = new Guest(guestName);  // Initialize the Guest object
+    }
+
+
+public LocalDate getArrivalDate() {
+    return arrivalDate;
+}
+
+public LocalDate getDepartureDate() {
+    return departureDate;
+}
+    public Reservation() {
+    }
+
+    public void setG(String guestName) {
+    this.g = guestName;
+  
+ }
+    public String getG() {
+        return g;
+    }
+   
+
+    public RoomCategory getRoomCategory() {
+        return roomCategory;
+    }
+
+    public void setRoomCategory(RoomCategory roomCategory) {
+        this.roomCategory = roomCategory;
+    }
+
+    public String getRoomnum() {
+        return roomnum;
+    }
+
+    public void setRoomnum(String roomnum) {
+        this.roomnum = roomnum;
+    }
+
+   
+    public String getArrivalDatetoString() {
+        return arrivalDate.format(formatter);
+    }
+
+    public String getDepartureDatetoString() {
+        return departureDate.format(formatter);
+    }
+
+    
+    public double getPrice() {
+        return price;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public Guest getGuest() {
+        return guest;
+    }
+
+    public Rooms getRoom() {
+        return room;
+    }
+
+    public Rooms getBookedRooms() {
+        return BookedRooms;
+    }
+
+    public void setBookedRooms(Rooms BookedRooms) {
+        this.BookedRooms = BookedRooms;
+    }
+
+    public void setArrivalDate(LocalDate arrivalDate) {
+        this.arrivalDate = arrivalDate;
+    }
+
+    public void setDepartureDate(LocalDate departureDate) {
+        this.departureDate = departureDate;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public void setGuest(Guest guest) {
+        this.guest = guest;
+    }
+
+    public void setRoom(Rooms room) {
+        this.room = room;
+    }
+
+  
+
+    public List<String> getPreferences() {
+        return preferences;
+    }
+
+    public void setPreferences(List<String> preferences) {
+        this.preferences = preferences;
+    }
+
+    public List<String> getAdditionalServices() {
+        return additionalServices;
+    }
+
+    public void setAdditionalServices(List<String> additionalServices) {
+        this.additionalServices = additionalServices;
+    }
+
+    public boolean isCheckedOut() {
+        return checkedOut;
+    }
+
+    public void setCheckedOut(boolean checkedOut) {
+        this.checkedOut = checkedOut;
+    }
+
+    public static DateTimeFormatter getFormatter() {
+        return formatter;
+    }
+
+    public static void setFormatter(DateTimeFormatter formatter) {
+        Reservation.formatter = formatter;
+    }
+    
+    public void print() {
+        System.out.println("--------------------------------");
+        System.out.println("arrival date:" + arrivalDate.format(formatter));
+        System.out.println("departure date:" + departureDate.format(formatter));
+        int days = Period.between(arrivalDate, departureDate).getDays();
+        System.out.println(days + "Days");
+        System.out.println("******Guest information*********");
+        guest.print();
+        System.out.println("******Room information*********");
+        room.print();
+        System.out.println("**********total**********");
+        double price = days * room.getPrice();
+        System.out.println("price:" + price);
+        System.out.println("Total after discount " + this.price);
+        System.out.println("--------------------------------");
+    }
+
+    public static void createNewReservation(ArrayList<Guest> guests, ArrayList<Rooms> rooms,
+            ArrayList<Reservation> reservations, Scanner scanner) {
+        System.out.println("Enter arrival date (yyyy-mm-dd)");
+        String arrDate = scanner.next();
+
+        System.out.println("Enter departure date (yyyy-mm-dd)");
+        String depDate = scanner.next();
+
+        System.out.println("enter guest id: \n to search guest by name");
+        int guestId = scanner.nextInt();
+        if (guestId == -1) {
+            Guest.searchGuestByName(guests, scanner);
+            System.out.println("Enter guest id");
+            guestId = scanner.nextInt();
+
+        }
+        System.out.println("enter room id \n to show all rooms");
+        int roomId = scanner.nextInt();
+        if (roomId == -1) {
+            ///////////////
+            Rooms r = new Rooms();
+            r.showAllRooms(); ///////////////////
+            System.out.println("enter room id ");
+            roomId = scanner.nextInt();
+        }
+
+        
+        
+        
+        LocalDate arrivalDate = LocalDate.parse(arrDate, formatter);
+        LocalDate departureDate = LocalDate.parse(depDate, formatter);
+
+        Guest guest = guests.get(guestId); // get the guest object from the array list
+        //////////////////////////////
+        Rooms room = new Rooms(); // Create an instance of Rooms
+        room = room.searchRoomByNumber(room.getRoomNumber());///////////////////////////////
+        if (room.checkAvailability(roomId, arrivalDate, departureDate)) {
+            System.out.println("this room is reserved");
+            return;
+        } else {
+            int days = Period.between(arrivalDate, departureDate).getDays();
+            double sum = days * room.getPrice();
+            double total = sum - sum * guest.getDiscount() / 100;
+            System.out.println("Total before discount=" + sum);
+            System.out.println("Total after discount=" + total);
+            System.out.println("will you pay now?\n 1-yes \n 2-no");
+            int j = scanner.nextInt();
+            String status;
+            if (j == 1) {
+                status = "paid";
+            } else {
+                status = "reserved";
+            }
+            Reservation r = new Reservation(guest, arrivalDate, departureDate, room);
+            r.setPrice(total); // Set the total price to the reservation
+            r.setStatus(status);
+
+            r.print();
+            reservations.add(r);
+            System.out.println("");
+        }
+    }
+
+    public static void showallreservation(ArrayList<Reservation> reservations, Scanner scanner) {
+        for (Reservation r : reservations) {
+            System.out.println("\n-----------------------------------");
+            System.out.println("id: " + reservations.indexOf(r));
+            System.out.println("Arrival Date: " + r.getArrivalDatetoString());
+            System.out.println("Departure date: " + r.getDepartureDatetoString());
+            System.out.println("Guest name: " + r.getGuest().getName());
+            System.out.println("Room id: " + r.getRoom().getRoomNumber());
+            System.out.println("Price: " + r.getPrice());
+            System.out.println("Status: " + r.getStatus());
+            System.out.println("-----------------------------------");
+        }
+    }
+
+    public static void getreservationbyguestname(ArrayList<Reservation> reservations, Scanner scanner) {
+        System.out.println("enter guest name: ");
+        String guestName = scanner.next();
+        for (Reservation r : reservations) {
+            String name = r.getGuest().getName();
+            if (guestName.equals(name))
+                r.print();
+        }
+    }
+
+    public static void getreservationbyguestid(ArrayList<Reservation> reservations, Scanner scanner) {
+        System.out.println("enter guest id: ");
+        String guestId = scanner.next();
+        for (Reservation r : reservations) {
+            String id = r.getGuest().getName();
+            if (guestId == id)
+                r.print();
+        }
+    }
+
+    public static void editReservation(ArrayList<Guest> guests, ArrayList<Rooms> rooms,
+            ArrayList<Reservation> reservations, Scanner scanner) {
+        System.out.println("enter reservation id(int):\n-1 to show all reservation ids");
+        int id = scanner.nextInt();
+        if (id == -1) {
+            showallreservation(reservations, scanner);
+            System.out.println("enter reservation id(int): ");
+            id = scanner.nextInt();
+        }
+        Reservation reservation = reservations.get(id);
+        System.out.println("enter arrival date(yyyy-MM-dd):\n-1 to keep it");
+        String arrDate = scanner.next();
+        if (arrDate.equals("-1")) {
+            arrDate = reservation.getArrivalDatetoString();
+        }
+
+        System.out.println("enter departure date(yyyy-MM-dd):\n-1 to keep it");
+        String depDate = scanner.next();
+        if (depDate.equals("-1")) {
+            depDate = reservation.getDepartureDatetoString();
+        }
+        System.out.println("enter room id (int):\n-1 to keep it \n-2 to show all rooms ");
+        int roomId = scanner.nextInt();
+        if (roomId == -1) {
+            roomId = reservation.getRoom().getRoomNumber();
+
+        } else if (roomId == -2) {
+            Rooms.showAllRooms();
+            System.out.println("enter room id (int): ");
+            roomId = scanner.nextInt();
+        }
+        LocalDate arrivalDate = LocalDate.parse(arrDate, formatter);
+        LocalDate departureDate = LocalDate.parse(depDate, formatter);
+
+        Guest guest = reservation.getGuest();
+        ////////////////////////////////
+        Rooms room = new Rooms();
+        room = room.searchRoomByNumber(room.getRoomNumber());////////////////////////
+
+        if (room.checkAvailability(roomId, arrivalDate, departureDate)) {
+            System.out.println("this room is reserved");
+            return;
+        } else {
+            int days = Period.between(arrivalDate, departureDate).getDays();
+            double sum = days * room.getPrice();
+            double total = sum - sum * guest.getDiscount() / 100;
+            System.out.println("Total before discount=" + sum);
+            System.out.println("Total after discount=" + total);
+            System.out.println("will you pay now?\n 1-yes \n 2-no");
+            int j = scanner.nextInt();
+            String status;
+            if (j == 1) {
+                status = "paid";
+            } else {
+                status = "reserved";
+            }
+            reservation.setArrivalDate(arrivalDate);
+            reservation.setDepartureDate(departureDate);
+            reservation.setRoom(room);
+            reservation.setStatus(status);
+            reservation.setPrice(total);
+            reservations.set(id, reservation);
+            reservation.print();
+            Reservation r = new Reservation(guest, arrivalDate, departureDate, room);
+            r.print();
+            reservations.add(r);
+            System.out.println("");
+        }
+    }
+
+    public static void payReservation(ArrayList<Reservation> reservations, Scanner scanner) {
+        System.out.println("enter reservation id (int):\n-1 to show all ids");
+        int id = scanner.nextInt();
+        if (id == -1) {
+            showallreservation(reservations, scanner);
+            System.out.println("enter reservation id(int): ");
+            id = scanner.nextInt();
+        }
+        Reservation reservation = reservations.get(id);
+        if (reservation.getStatus().equals("Reserved")) {
+            reservation.setStatus("paid");
+            System.out.println("reservation paid successfully! ");
+
+        } else {
+            System.out.println("this reservation already paid");
+
+        }
+    }
+    
+    public boolean overlaps(LocalDate startDate, LocalDate finishDate) {
+    return (this.arrivalDate.isBefore(finishDate) || this.departureDate.isEqual(finishDate)) &&
+           (startDate.isBefore(this.arrivalDate) || startDate.isEqual(this.departureDate));
+}
+
+   
+    public void addPreference(String preference) {
+        preferences.add(preference);
+    }
+
+    public void addAdditionalService(String service) {
+        additionalServices.add(service);
+    }
+
+    public void cancelReservation() {
+        checkedOut = true;
+        System.out.println("Reservation canceled successfully.");
+    }
+
+    public void checkout() {
+        if (checkedOut) {
+            System.out.println("The reservation has already been checked out.");
+        } else {
+            checkedOut = true;
+            System.out.println("Checkout successful. Thank you for staying with us!");
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "Reservation{" +
+                "guestName='" + guest.getName() + '\'' +
+                ", roomCategory='" + roomCategory + '\'' +
+                ", preferences=" + preferences +
+                ", additionalServices=" + additionalServices +
+                ", checkedOut=" + checkedOut +
+                '}';
+    }
+    
+
+}
