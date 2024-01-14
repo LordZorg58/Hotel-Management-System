@@ -1,0 +1,676 @@
+package hotel;
+
+import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import java.util.Optional;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.geometry.Pos;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+
+public class RoomManagement extends Application {
+    private BorderPane borderPane = new BorderPane();
+    private TableView<Rooms> roomTableView = new TableView<>();
+    private TextField roomNumberField = new TextField();
+    private TextField priceField = new TextField();
+    private Reservation selectedReservationForEditing;
+    
+    private TableView<Reservation> reservationTableView = new TableView<>();
+    private Receptionist receptionist = new Receptionist("Reservations.bin");
+    
+    private ImageView imageView = new ImageView();
+    private Image startImage;
+    
+    private Rooms selectedRoom;
+    private Button start;
+    private Label titleLabel = new Label("Hotel Management System");
+    private ComboBox<RoomCategory> categoryComboBox = new ComboBox<>();
+    private ComboBox<Boolean> statusComboBox = new ComboBox<>();
+
+    @Override
+    public void start(Stage primaryStage) {
+        borderPane.setPadding(new Insets(0, 0, 20, 0));
+        
+        HBox top = new HBox();
+        top.setStyle("-fx-background-color:#24344D;");
+        top.setPadding(new Insets(20, 20, 20, 18));
+top.setAlignment(Pos.CENTER);
+
+        Button roomsButton = createStyledButton("Rooms");
+        Button reservationButton = createStyledButton("Reservation");
+        Button guestButton = createStyledButton("Guest");
+        Button servicesButton = createStyledButton("Services");
+        Button adminButton = createStyledButton("Admin");
+//        Button logoutButton = createStyledButton("Logout");
+       start = createStyledButton("Start Page");
+       
+startImage = new Image("file:///Users/DELL/Downloads/ooo.jpg");
+
+        borderPane.setCenter(imageView);
+        borderPane.setBottom(start);
+
+        VBox leftMenuVBox = new VBox();
+        leftMenuVBox.setSpacing(20);
+        leftMenuVBox.setPadding(new Insets(20, 20, 20, 20));
+        leftMenuVBox.setStyle("-fx-background-color:#3E567C");
+
+        leftMenuVBox.getChildren().addAll(start,roomsButton, reservationButton, guestButton, servicesButton, adminButton);
+        borderPane.setLeft(leftMenuVBox);
+       start.setOnAction(e -> {showStartImage();
+         updateTitle("Hotel");
+               
+               });
+        roomsButton.setOnAction(e -> {showRoomsPage();
+        updateTitle("Rooms");
+        });
+        
+        reservationButton.setOnAction(e ->{ showReservationPage();
+          updateTitle("Reservation");
+        });  // Handle reservation button click
+
+        HBox titleBox = new HBox();
+        titleBox.setAlignment(Pos.CENTER);
+//        top.getChildren().addAll(titleBox, logoutButton);
+
+        GridPane addRoomsPane = createAddRoomsPane();
+
+        borderPane.setCenter(addRoomsPane);
+        borderPane.setTop(top);
+         // Create the label and add it to the top HBox
+      
+        titleLabel.setStyle("-fx-text-fill: #F8F2EB; -fx-font-size: 18pt; -fx-font-weight: bold;");
+        top.getChildren().add(titleLabel);
+
+        
+       
+        
+        Scene scene = new Scene(borderPane, 800, 600);
+        primaryStage.setTitle("Hotel System");
+        primaryStage.setScene(scene);
+        
+        // Load data when the application starts
+        Rooms.readRoomsHashMapFromBinary("C:/Users/DELL/Documents/NetBeansProjects/hotel/Rooms.bin");
+        receptionist.loadReservations();
+       
+        // Save data when the application is closed
+        primaryStage.setOnCloseRequest(e -> {
+            Rooms.writeHashMapToBinary("C:/Users/DELL/Documents/NetBeansProjects/hotel/Rooms.bin");
+         receptionist.loadReservations();
+        });
+         showStartImage();
+        primaryStage.show();
+    }
+private void showReservationPage() {
+        GridPane reservationPane = createReceptionistPane();  // Assuming you have a method to create the reservation pane
+        borderPane.setCenter(reservationPane);
+    }
+  
+       private void showRoomsPage() {
+    GridPane roomsPane = createAddRoomsPane();  // Assuming you have a method to create the Rooms pane
+    borderPane.setCenter(roomsPane);
+}
+     private void showStartImage() {
+        imageView.setImage(startImage);
+        borderPane.setCenter(imageView);
+    }
+ private void updateTitle(String menuOption) {
+    titleLabel.setText(menuOption +" Management System "  );
+}
+    private Button createStyledButton(String text) {
+        Button button = new Button(text);
+        button.setStyle("-fx-background-color: transparent; -fx-text-fill: #F8F2EB; -fx-font-weight: bold; -fx-font-size: 14pt;");
+        return button;
+    }
+
+    private GridPane createAddRoomsPane() {
+
+        GridPane addRoomsPane = new GridPane();
+        addRoomsPane.setHgap(20);
+        addRoomsPane.setVgap(20); // Added vertical gap
+        addRoomsPane.setPadding(new Insets(20));
+        addRoomsPane.setStyle("-fx-background-color:#A7BBCB");
+
+        Label roomNumberLabel = new Label("Room Number:");
+        roomNumberField = new TextField();
+
+        Label categoryLabel = new Label("Category:");
+        categoryComboBox.getItems().addAll(RoomCategory.values());
+
+        Label statusLabel = new Label("Status:");
+        TextField statusField = new TextField();
+
+        Label priceLabel = new Label("Price:");
+        priceField = new TextField();
+
+        Label searchRoomLabel = new Label("Room Number:");
+        TextField searchRoomNumberField = new TextField();
+
+        Label searchCategoryLabel = new Label("Category:");
+        ComboBox<RoomCategory> searchCategoryComboBox = new ComboBox<>();
+        searchCategoryComboBox.getItems().addAll(RoomCategory.values());
+
+        Button searchButton = new Button("Search");
+        Rooms.readRoomsHashMapFromBinary("C:/Users/DELL/Documents/NetBeansProjects/hotel/Rooms.bin");
+
+        roomTableView.setEditable(false);
+        roomTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+ roomTableView.getColumns().clear(); // Clear existing columns before adding new ones
+
+TableColumn<Rooms, Integer> roomNumberCol = new TableColumn<>("Room Number");
+        TableColumn<Rooms, RoomCategory> categoryCol = new TableColumn<>("Category");
+        TableColumn<Rooms, Double> priceCol = new TableColumn<>("Price");
+        TableColumn<Rooms, String> statusCol = new TableColumn<>("Status");
+
+        roomNumberCol.setCellValueFactory(new PropertyValueFactory<>("roomNumber"));
+        categoryCol.setCellValueFactory(new PropertyValueFactory<>("category"));
+        statusCol.setCellValueFactory(cellData -> {
+            boolean availability = cellData.getValue().getstatues();
+            return new SimpleStringProperty(availability ? "Available" : "Not Available");
+        });
+        priceCol.setCellValueFactory(new PropertyValueFactory<>("price"));
+
+        roomTableView.getColumns().addAll(roomNumberCol, categoryCol, priceCol, statusCol);
+        ObservableList<Rooms> roomData = FXCollections.observableArrayList(Rooms.getRoomsByNumber().values());
+        roomTableView.setItems(roomData);
+        roomTableView.setPrefWidth(800);
+        roomTableView.setPrefHeight(400);
+
+      
+        statusComboBox.getItems().addAll(true, false);
+
+        Button addButton = new Button("Add");
+        Button editButton = new Button("Edit");
+        Button removeButton = new Button("Remove");
+        Button refreshButton = new Button("Refresh");
+
+        addButton.setStyle("-fx-font-size: 16pt; -fx-min-width: 120;");
+        editButton.setStyle("-fx-font-size: 16pt; -fx-min-width: 120;");
+        removeButton.setStyle("-fx-font-size: 16pt; -fx-min-width: 120;");
+        refreshButton.setStyle("-fx-font-size: 16pt; -fx-min-width: 200;");
+        
+        
+        
+        
+        addButton.setOnAction(e -> {
+            try {
+                int roomNumber = Integer.parseInt(roomNumberField.getText());
+                RoomCategory category = categoryComboBox.getValue();
+                boolean availability = statusComboBox.getValue();
+                double price = Double.parseDouble(priceField.getText());
+
+                Rooms room = new Rooms(roomNumber, category, price, availability);
+                roomData.add(room);
+                clearFields(roomNumberField, priceField);
+                clearFields(statusComboBox, categoryComboBox);
+
+                // Save the updated data to the binary file
+                Rooms.writeHashMapToBinary("C:/Users/DELL/Documents/NetBeansProjects/hotel/Rooms.bin");
+
+            } catch (NumberFormatException | NullPointerException ex) {
+                // Handle NumberFormatException or NullPointerException
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Invalid Input");
+                alert.setHeaderText(null);
+                alert.setContentText("Please enter valid values for Room Number, Price, Category, and Status.");
+                alert.showAndWait();
+            }
+        });
+
+
+
+        editButton.setOnAction(e -> {
+            selectedRoom = roomTableView.getSelectionModel().getSelectedItem();
+            if (selectedRoom != null) {
+                 refreshTable();
+                // Populate data back to the text fields for editing
+                roomNumberField.setText(String.valueOf(selectedRoom.getRoomNumber()));
+                categoryComboBox.setValue(selectedRoom.getCategory());
+                statusComboBox.setValue(selectedRoom.isAvailability(selectedRoom.getstatues()));
+                priceField.setText(String.valueOf(selectedRoom.getPrice()));
+                Rooms.getRoomsByNumber().put(selectedRoom.getRoomNumber(), selectedRoom);
+                    Rooms.writeHashMapToBinary("C:/Users/DELL/Documents/NetBeansProjects/hotel/Rooms.bin");
+            } else {
+                // Display a warning or prompt to select a room
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("No Room Selected");
+                alert.setHeaderText(null);
+                alert.setContentText("Please select a room to edit.");
+                alert.showAndWait();
+            }
+        });
+
+        removeButton.setOnAction(e -> {
+            selectedRoom = roomTableView.getSelectionModel().getSelectedItem();
+            if (selectedRoom != null) {
+                Alert confirmRemove = new Alert(Alert.AlertType.CONFIRMATION);
+                confirmRemove.setTitle("Confirm Removal");
+                confirmRemove.setHeaderText(null);
+                confirmRemove.setContentText("Are you sure you want to remove this room?");
+                Optional<ButtonType> result = confirmRemove.showAndWait();
+
+                if (result.isPresent() && result.get() == ButtonType.OK) {
+                    roomData.remove(selectedRoom);
+                    Rooms.getRoomsByNumber().remove(selectedRoom.getRoomNumber());
+                    Rooms.writeHashMapToBinary("C:/Users/DELL/Documents/NetBeansProjects/hotel/Rooms.bin");
+                }
+            } else {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("No Room Selected");
+                alert.setHeaderText(null);
+                alert.setContentText("Please select a room to remove.");
+                alert.showAndWait();
+            }
+        });
+
+        refreshButton.setOnAction(e -> refreshTable());
+
+        roomNumberLabel.setStyle("-fx-font-size: 16pt; -fx-min-width: 70;");
+        roomNumberField.setStyle("-fx-font-size: 16pt; -fx-min-width: 70;");
+        categoryLabel.setStyle("-fx-font-size: 16pt; -fx-min-width: 70;");
+        categoryComboBox.setStyle("-fx-font-size: 16pt; -fx-min-width: 70;");
+        statusLabel.setStyle("-fx-font-size: 16pt; -fx-min-width: 70;");
+        statusComboBox.setStyle("-fx-font-size: 16pt; -fx-min-width: 70;");
+        priceLabel.setStyle("-fx-font-size: 16pt; -fx-min-width: 70;");
+        priceField.setStyle("-fx-font-size: 16pt; -fx-min-width: 70;");
+
+        addRoomsPane.add(roomNumberLabel, 1, 3);
+        addRoomsPane.add(roomNumberField, 2, 3);
+        addRoomsPane.add(categoryLabel, 1, 4);
+        addRoomsPane.add(categoryComboBox, 2, 4);
+        addRoomsPane.add(statusLabel, 1, 5);
+        addRoomsPane.add(statusComboBox, 2, 5);
+        addRoomsPane.add(priceLabel, 1, 6);
+        addRoomsPane.add(priceField, 2, 6);
+        addRoomsPane.add(roomTableView, 5, 3, 10, 7);
+        addRoomsPane.add(refreshButton, 5, 12);
+        HBox buttonsBox = new HBox(10, addButton, editButton, removeButton);
+        buttonsBox.setAlignment(Pos.CENTER);
+        addRoomsPane.add(buttonsBox, 1, 7, 2, 1);
+
+        HBox search = new HBox();
+        search.getChildren().addAll(searchCategoryLabel, searchCategoryComboBox, searchRoomLabel, searchRoomNumberField, searchButton);
+        search.setSpacing(10);
+        search.setPadding(new Insets(2, 2, 2, 2));
+        addRoomsPane.add(search, 5, 2);
+
+        
+        
+        
+        
+        searchButton.setOnAction(e -> {
+    String searchRoomNumberText = searchRoomNumberField.getText().trim();
+    RoomCategory searchCategory = searchCategoryComboBox.getValue();
+
+    if (!searchRoomNumberText.isEmpty() && searchCategory != null) {
+        // Both room number and category provided
+        try {
+            int searchRoomNumber = Integer.parseInt(searchRoomNumberText);
+            Rooms roomsInstance = new Rooms();
+            Rooms searchedRoom = roomsInstance.searchRoomByNumber(searchRoomNumber);
+
+            if (searchedRoom != null && searchedRoom.getCategory() == searchCategory) {
+                roomTableView.getItems().clear();
+                roomTableView.getItems().add(searchedRoom);
+                 clearFields(searchRoomNumberField);
+                clearFields( searchCategoryComboBox);
+            } else {
+                showAlert("No Room Found", "No room matching the specified criteria was found.");
+            }
+        } catch (NumberFormatException ex) {
+            showAlert("Invalid Room Number", "Please enter a valid room number.");
+        }
+    } else if (!searchRoomNumberText.isEmpty()) {
+        // Only room number provided
+        try {
+            int searchRoomNumber = Integer.parseInt(searchRoomNumberText);
+            Rooms roomsInstance = new Rooms();
+            Rooms searchedRoom = roomsInstance.searchRoomByNumber(searchRoomNumber);
+
+            if (searchedRoom != null) {
+                roomTableView.getItems().clear();
+                roomTableView.getItems().add(searchedRoom);
+                clearFields(searchRoomNumberField);
+                clearFields( searchCategoryComboBox);
+            } else {
+                showAlert("No Room Found", "No room with the specified room number was found.");
+            }
+        } catch (NumberFormatException ex) {
+            showAlert("Invalid Room Number", "Please enter a valid room number.");
+        }
+    } else if (searchCategory != null) {
+        // Only category provided
+        Rooms roomsInstance = new Rooms();
+        List<Rooms> matchingRooms = roomsInstance.searchRooms(searchCategory);
+
+        if (!matchingRooms.isEmpty()) {
+            roomTableView.getItems().clear();
+            roomTableView.getItems().addAll(matchingRooms);
+             clearFields(searchRoomNumberField);
+             clearFields( searchCategoryComboBox);
+        } else {
+            showAlert("No Room Found", "No room with the specified category was found.");
+        }
+    } else {
+        // No criteria provided, show all rooms
+        roomTableView.getItems().clear();
+        roomTableView.getItems().addAll(Rooms.getRoomsByNumber().values());
+        clearFields(searchRoomNumberField);
+        clearFields( searchCategoryComboBox);
+    }
+});
+
+
+
+        return addRoomsPane;
+    }
+
+// Helper method to show alerts
+private void showAlert(String title, String content) {
+    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+    alert.setTitle(title);
+    alert.setHeaderText(null);
+    alert.setContentText(content);
+    alert.showAndWait();
+}
+
+    private void clearFields(TextField... fields) {
+        for (TextField field : fields) {
+            field.clear();
+        }
+    }
+
+    private void clearFields(ComboBox<?>... comboBoxes) {
+        for (ComboBox<?> comboBox : comboBoxes) {
+            comboBox.getSelectionModel().clearSelection();
+            comboBox.setValue(null);
+        }
+    }
+
+    private void refreshTable() {
+    ObservableList<Rooms> roomData = FXCollections.observableArrayList(Rooms.getRoomsByNumber().values());
+    roomTableView.setItems(roomData);
+}
+
+    public GridPane createReceptionistPane() {
+        Button refreshButton= new Button("Refresh");
+        
+       GridPane receptionistPane = new GridPane();
+    receptionistPane.setHgap(20);
+    receptionistPane.setVgap(20);
+    receptionistPane.setPadding(new Insets(20));
+    receptionistPane.setStyle("-fx-background-color:#A7BBCB");
+
+    Label guestNameLabel = new Label("Guest Name:");
+    TextField guestNameField = new TextField();
+
+    Label roomCategoryLabel = new Label("Room Category:");
+    ComboBox<RoomCategory> categoryComboBox = new ComboBox<>();
+    categoryComboBox.getItems().addAll(RoomCategory.values());
+    
+        Label preferencesLabel = new Label("Preferences:");
+ComboBox<String> preferencesComboBox = new ComboBox<>();
+preferencesComboBox.getItems().addAll("Preference1", "Preference2", "Preference3"); // Replace with actual preferences
+
+Label additionalServicesLabel = new Label("Additional Services:");
+ComboBox<String> additionalServicesComboBox = new ComboBox<>();
+additionalServicesComboBox.getItems().addAll("Service1", "Service2", "Service3"); // Replace with actual services
+
+       Label checkInLabel = new Label("Check-In Date:");
+    DatePicker checkInDatePicker = new DatePicker();
+
+    Label checkOutLabel = new Label("Check-Out Date:");
+    DatePicker checkOutDatePicker = new DatePicker();
+reservationTableView.getColumns().clear();
+    ObservableList<Reservation> reservationData = FXCollections.observableArrayList(receptionist.getReservations());
+    reservationTableView.setItems(reservationData);
+reservationTableView.setPrefSize(800, 400);
+        reservationTableView.setEditable(false);
+        reservationTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+ TableColumn<Reservation, String> guestNameCol = new TableColumn<>("Guest Name");
+    TableColumn<Reservation, RoomCategory> roomCategoryCol = new TableColumn<>("Room Category");
+    TableColumn<Reservation, LocalDate> checkInCol = new TableColumn<>("Check In");
+    TableColumn<Reservation, LocalDate> checkOutCol = new TableColumn<>("Check Out");
+    TableColumn<Reservation, List<String>> preferencesCol = new TableColumn<>("Preferences");
+    TableColumn<Reservation, List<String>> additionalServicesCol = new TableColumn<>("Additional Services");
+
+  guestNameCol.setCellValueFactory(new PropertyValueFactory<>("guest"));
+// Assuming "g" is the property in Reservation class for guest name
+    roomCategoryCol.setCellValueFactory(new PropertyValueFactory<>("roomCategory"));
+    checkInCol.setCellValueFactory(new PropertyValueFactory<>("arrivalDate"));
+    checkOutCol.setCellValueFactory(new PropertyValueFactory<>("departureDate"));
+    preferencesCol.setCellValueFactory(new PropertyValueFactory<>("preferences"));
+    additionalServicesCol.setCellValueFactory(new PropertyValueFactory<>("additionalServices"));
+
+    reservationTableView.getColumns().addAll(guestNameCol, roomCategoryCol, checkInCol, checkOutCol, preferencesCol, additionalServicesCol);
+
+       
+        Button createReservationButton = new Button("Create Reservation");
+        Button selectPreferencesButton = new Button("Select Preferences");
+        Button addServicesButton = new Button("Add Additional Services");
+        Button cancelReservationButton = new Button("Cancel Reservation");
+        Button checkoutButton = new Button("Checkout");
+
+
+createReservationButton.setOnAction(e -> {
+    String guestName = guestNameField.getText();
+    RoomCategory roomCategory = categoryComboBox.getValue();
+    LocalDate checkInDate = checkInDatePicker.getValue();
+    LocalDate checkOutDate = checkOutDatePicker.getValue();
+
+    // Get the edited data
+    List<String> selectedPreferences = Collections.singletonList(preferencesComboBox.getValue());
+
+    // Create a new reservation with the edited data
+    Reservation editedReservation = new Reservation(guestName, roomCategory, checkInDate, checkOutDate);
+    editedReservation.setPreferences(selectedPreferences);
+
+   
+       
+    // Create the reservation with the provided data
+    receptionist.createReservation(guestName, roomCategory, checkInDate, checkOutDate);
+    Reservation newReservation = receptionist.findReservation(guestName);
+
+    if (newReservation != null) {
+        newReservation.setG(guestName);
+        newReservation.setArrivalDate(checkInDate);
+        newReservation.setDepartureDate(checkOutDate);
+
+        // Add preferences and additional services
+        newReservation.setPreferences(Collections.singletonList(preferencesComboBox.getValue()));
+        newReservation.setAdditionalServices(Collections.singletonList(additionalServicesComboBox.getValue()));
+
+        // Clear input fields
+        guestNameField.clear();
+        categoryComboBox.getSelectionModel().clearSelection();
+        preferencesComboBox.getSelectionModel().clearSelection();
+        additionalServicesComboBox.getSelectionModel().clearSelection();
+        checkInDatePicker.setValue(null);
+        checkOutDatePicker.setValue(null);
+         // Save the reservations after creating a new reservation
+        receptionist.saveReservations();
+
+        // Refresh the table after adding a new reservation
+        refreshReservationTable();
+    } else {
+        System.out.println("Error: Newly created reservation not found.");
+    }
+});
+
+selectPreferencesButton.setOnAction(e -> {
+    Reservation selectedReservation = reservationTableView.getSelectionModel().getSelectedItem();
+    if (selectedReservation != null) {
+        // Show a dialog with the preferencesComboBox
+        ChoiceDialog<String> dialog = new ChoiceDialog<>(preferencesComboBox.getItems().get(0), preferencesComboBox.getItems());
+        dialog.setTitle("Select Preferences");
+        dialog.setHeaderText("Select preferences:");
+
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(selectedPreference -> {
+            // Set the selected preferences to the reservation
+            List<String> newPreferences = Collections.singletonList(selectedPreference);
+            selectedReservation.setPreferences(newPreferences);
+             // Save the reservations after creating a new reservation
+        receptionist.saveReservations();
+
+            refreshReservationTable();
+        });
+    } else {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("No Reservation Selected");
+        alert.setHeaderText(null);
+        alert.setContentText("Please select a reservation to add preferences.");
+        alert.showAndWait();
+    }
+});
+
+
+addServicesButton.setOnAction(e -> {
+    Reservation selectedReservation = reservationTableView.getSelectionModel().getSelectedItem();
+    if (selectedReservation != null) {
+        // Show a dialog with the additionalServicesComboBox
+        ChoiceDialog<String> dialog = new ChoiceDialog<>(additionalServicesComboBox.getItems().get(0), additionalServicesComboBox.getItems());
+        dialog.setTitle("Select Additional Services");
+        dialog.setHeaderText("Select additional services:");
+
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(selectedService -> {
+            // Set the selected additional service to the reservation
+            List<String> newAdditionalServices = Collections.singletonList(selectedService);
+            selectedReservation.setAdditionalServices(newAdditionalServices);
+             // Save the reservations after creating a new reservation
+        receptionist.saveReservations();
+
+            refreshReservationTable();
+        });
+    } else {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("No Reservation Selected");
+        alert.setHeaderText(null);
+        alert.setContentText("Please select a reservation to edit additional services.");
+        alert.showAndWait();
+    }
+});
+
+
+cancelReservationButton.setOnAction(e -> {
+    Reservation selectedReservation = reservationTableView.getSelectionModel().getSelectedItem();
+    if (selectedReservation != null) {
+        // Show a confirmation dialog
+        Alert confirmationDialog = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmationDialog.setTitle("Cancel Reservation");
+        confirmationDialog.setHeaderText("Are you sure you want to cancel this reservation?");
+        confirmationDialog.setContentText("This action cannot be undone.");
+
+        Optional<ButtonType> result = confirmationDialog.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            // User clicked OK, proceed with cancellation
+            receptionist.cancelReservation(selectedReservation.getG());
+
+            // Remove the canceled reservation from the table
+            reservationTableView.getItems().remove(selectedReservation);
+             // Save the reservations after creating a new reservation
+        receptionist.saveReservations();
+
+        }
+    } else {
+        // Display a warning or prompt to select a reservation
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("No Reservation Selected");
+        alert.setHeaderText(null);
+        alert.setContentText("Please select a reservation to cancel.");
+        alert.showAndWait();
+    }
+});
+
+checkoutButton.setOnAction(e -> {
+    Reservation selectedReservation = reservationTableView.getSelectionModel().getSelectedItem();
+    if (selectedReservation != null) {
+        // Show a confirmation dialog
+        Alert confirmationDialog = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmationDialog.setTitle("Checkout");
+        confirmationDialog.setHeaderText("Are you sure you want to checkout this guest?");
+        confirmationDialog.setContentText("This action cannot be undone.");
+
+        Optional<ButtonType> result = confirmationDialog.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            // User clicked OK, proceed with checkout
+            receptionist.checkout(selectedReservation.getG());
+
+            // Update the checkout date in the table
+            selectedReservation.setDepartureDate(LocalDate.now());
+
+            // Refresh the table to reflect the changes
+          
+            reservationTableView.refresh(); 
+            // Save the reservations after creating a new reservation
+        receptionist.saveReservations();
+
+        }
+    } else {
+        // Display a warning or prompt to select a reservation
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("No Reservation Selected");
+        alert.setHeaderText(null);
+        alert.setContentText("Please select a reservation to checkout.");
+        alert.showAndWait();
+    }
+});
+
+
+        receptionistPane.add(guestNameLabel, 1, 1);
+        receptionistPane.add(guestNameField, 2, 1);
+        receptionistPane.add(roomCategoryLabel, 1, 2);
+        receptionistPane.add(categoryComboBox, 2, 2);
+        receptionistPane.add(preferencesLabel, 1, 3);
+        receptionistPane.add(preferencesComboBox, 2, 3);
+        receptionistPane.add(additionalServicesLabel, 1, 4);
+        receptionistPane.add(additionalServicesComboBox, 2, 4);
+        receptionistPane.add(checkInLabel, 1, 5);
+        receptionistPane.add(checkInDatePicker, 2, 5);
+        receptionistPane.add(checkOutLabel, 1, 6);
+        receptionistPane.add(checkOutDatePicker, 2, 6);
+        receptionistPane.add(reservationTableView, 5, 1, 10, 7);
+      
+        HBox buttonsBox = new HBox(10, createReservationButton, selectPreferencesButton, addServicesButton, cancelReservationButton, checkoutButton);
+        buttonsBox.setAlignment(Pos.CENTER);
+        receptionistPane.add(buttonsBox, 1, 7, 2, 1);
+
+        return receptionistPane;
+    }
+
+   private void refreshReservationTable() {
+    // Clear and repopulate the table with the updated reservation data
+    reservationTableView.getItems().clear();
+    reservationTableView.getItems().addAll(receptionist.getReservations());
+}
+
+    
+    public static void main(String[] args) {
+        launch(args);
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+}
