@@ -1,0 +1,71 @@
+package hotel;
+import java.io.File;
+import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
+import javafx.stage.Stage;
+
+public class HomePage1 extends Application {
+
+    @Override
+    public void start(Stage primaryStage) {
+        BorderPane borderPane = new BorderPane();
+        Scene scene = new Scene(borderPane, 800, 600);
+
+        // Create the top menu with Admin and Receptionist buttons
+        HBox topMenu = createTopMenu();
+        borderPane.setTop(topMenu);
+
+        // Create the center image and text
+        File imagePath = new File("C:\\Users\\DELL\\Downloads\\wwww.jpg");
+        ImageView imageView = new ImageView(new Image(imagePath.toURI().toString()));
+
+        Text welcomeText = new Text("Welcome to Movenpick Hotel");
+        
+ welcomeText.setFill(javafx.scene.paint.Color.WHITE);
+        welcomeText.setFont(Font.font("Arial", FontWeight.BOLD, 50));
+
+        StackPane centerStackPane = new StackPane(imageView, welcomeText);
+        StackPane.setAlignment(welcomeText, javafx.geometry.Pos.CENTER);
+         StackPane.setAlignment(welcomeText, Pos.TOP_CENTER); // Align welcome text to the bottom center
+
+        borderPane.setCenter(centerStackPane);
+
+        primaryStage.setTitle("Home Page");
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+
+    private HBox createTopMenu() {
+         Button manageButton = new Button("Manage");
+
+        manageButton.setOnAction(e -> {
+            // Handle Manage button action
+            System.out.println("Manage button clicked");
+            // Open the RoomManagement GUI
+            RoomManagement roomManagement = new RoomManagement();
+            roomManagement.start(new Stage());
+        });
+
+        HBox topMenu = new HBox(manageButton);
+        topMenu.setSpacing(10);
+        topMenu.setPadding(new javafx.geometry.Insets(10));
+        topMenu.setStyle("-fx-background-color: #3E567C; -fx-border-width: 0 0 1 0; -fx-border-color: #24344D;");
+
+        return topMenu;
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
