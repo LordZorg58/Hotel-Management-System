@@ -1,0 +1,162 @@
+package com.example.hotelgui;
+import javafx.geometry.*;
+
+import javafx.scene.control.*;
+import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import java.util.HashMap;
+import javafx.scene.Scene;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import org.controlsfx.control.tableview2.filter.filtereditor.SouthFilter;
+
+import java.io.*;
+import java.util.Map;
+import java.util.Scanner;
+public class HelloApplication extends Application  {
+    public static void SaveInfo (HashMap<String,String> Accounts) throws IOException {
+ObjectOutputStream oos=new ObjectOutputStream(new FileOutputStream("Data.bin"));
+oos.writeObject(Accounts);
+    }
+    public static boolean SearchInfo(String password,String username) throws IOException, ClassNotFoundException {
+        ObjectInputStream ois= null;
+
+            ois = new ObjectInputStream(new FileInputStream("Data.bin"));
+            HashMap<String, String> temp = (HashMap<String, String>) ois.readObject();
+        if(username.equals(temp.get(password))&&username!=null)
+            return true;
+        else return false;
+
+    }
+
+    @Override
+    public void start(Stage stage) throws FileNotFoundException {
+        HashMap<String,String> Accounts=new HashMap<>();
+        String File="Data.bin";
+        GridPane gp=new GridPane();
+        TextField tf1=new TextField();
+        PasswordField pf1=new PasswordField();
+        gp.add(new Label("e-mail"),0,1);
+        gp.add(new Label("password"),0,2);
+        gp.add(tf1,1,1);
+        gp.add(pf1,1,2);
+        VBox vert=new VBox();
+        vert.getChildren().addAll(new Label("Sign In"));
+        vert.setAlignment(Pos.TOP_RIGHT);
+Button b=new Button("Resgester");
+Button b2=new Button("Sign UP");
+        HBox hori=new HBox();
+hori.getChildren().addAll(b,b2);
+hori.setAlignment(Pos.BOTTOM_RIGHT);
+hori.setSpacing(12);
+gp.add(hori,0,3);
+gp.add(vert,0,0);
+gp.setAlignment(Pos.CENTER);
+Accounts.put("code130","AdminH");
+
+
+        HBox h2=new HBox();
+ b.setOnAction(e->{try {
+     String s1=tf1.getText();
+     String s2= pf1.getText();
+     //////-----if admin signing in-----/////
+//     if(s1.contains(Accounts.get(s2))&&s2.contains()){
+ SearchInfo(s2,s1);
+  Alert ad1=new Alert(Alert.AlertType.CONFIRMATION);
+
+    Button b1=new Button("Ok");
+    ad1.setHeaderText("Confirmation");
+    ad1.setContentText("Welcome mr.Admin");
+        h2.getChildren().addAll(b1);
+    h2.setAlignment(Pos.BOTTOM_RIGHT);
+    ad1.showAndWait();
+
+     ///////----end of admin signing in-----//////
+     ///////-----start of user sign in------//////
+     if(s1.contains("AdminH")==false||s2.contains("code130")==false) {
+
+         if (SearchInfo(s2, s1) == false) {
+
+             Alert ad = new Alert(Alert.AlertType.ERROR);
+      ad.setTitle("Error");
+             ad.setHeaderText("Error");
+             ad.setContentText("you don't have an account please Sign Up");
+
+             ad.show();
+
+         }
+     }
+
+ } catch (FileNotFoundException | ClassNotFoundException e1) {
+
+ } catch (IOException e2) {
+
+ }
+
+     System.out.println("Done");
+ });
+        /////---------Sign up page-------/////
+        GridPane gp2=new GridPane();
+        VBox vert2=new VBox();
+        Label l1= new Label("Welcome");
+        Label l2=new Label("Please fill in with your information");
+        vert2.getChildren().addAll(l1,l2);
+        vert2.setAlignment(Pos.TOP_RIGHT);
+        gp2.add(new Label("Username"),0,0);
+        gp2.add(new Label("Password"),0,1);
+        gp2.add(new Label("Confirm Password"),0,2);
+        TextField user=new TextField();
+        gp2.add(user,1,0);
+        TextField pass=new TextField("the Password must be at least 8 charcters");
+        gp2.add(pass,1,1);
+        TextField conf=new TextField();
+        gp2.add(conf,1,2);
+        Button finish=new Button("Finish");
+        gp2.setVgap(7);gp2.setHgap(10);gp2.setPadding(new Insets(15));
+        Scene sc2=new Scene(gp2);
+        b2.setOnAction(e->{
+            try{
+
+                stage.setScene(sc2);
+
+               stage.show();
+            }catch (Exception ex){}
+
+        });
+finish.setOnAction(e->{
+    try {
+        String u = user.getText();
+        String p = pass.getText();
+        String c = conf.getText();
+        if (p.equals(c) == false) {
+        Label l4 = new Label("the password Doesn't match");
+    l4.setStyle("-fx-text-fill: red;");
+        gp2.add(l4, 4, 1);
+    }
+        else if(p.length()<8){
+            Alert ad4=new Alert(Alert.AlertType.ERROR);
+            ad4.setHeaderText("Error");
+            ad4.setContentText("the password must be at least 8 characters");
+        ad4.show();
+        }
+
+
+        else {
+             Accounts.put(p,u);
+         SaveInfo(Accounts);
+
+        }
+    }catch (Exception Ex){}
+});
+
+
+
+    }
+
+    public static void main(String[] args) {
+        launch();
+    }
+}
